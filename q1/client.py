@@ -8,8 +8,8 @@ import sys
 class Client(object):
 
     def __init__(self):
-        self.serverHost = '192.168.0.106'
-        self.serverPort = 7777
+        self.serverHost = '127.0.0.1'
+        self.serverPort = 9898
         self.socket = None
 
     def register_signal_handler(self):

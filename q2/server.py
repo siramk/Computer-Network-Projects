@@ -111,11 +111,12 @@ class Server:
         return
     
     def list(self):
-        clients = "-----------CLIENTS-------------\n"
+        clients = "-----------CLIENTS-------------\n CLIENT_ID         ADDR\n"
         for i, conn in enumerate(self.connections):
             try:
                 conn.send(str.encode(" "))
-                conn.recv(20480)
+                data = conn.recv(20480)
+                if data == b'': raise "connection broken"                
             except Exception as e:
                 if i<len(self.connections):
                     del self.connections[i]

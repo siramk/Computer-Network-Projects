@@ -17,14 +17,14 @@ logger = logging.Logger(__file__)
 
 COMMANDS = [
     "list: gives list of connections online on server",
-    "send client_id msg: will ask server to send 'msg' to cient with 'client_id'",
+    "send client_id msg: will ask server to send 'msg' to client with 'client_id'",
     "quit: to end the connection with server"
 ]
 
 class Client:
     
     def __init__(self):
-        self.serverHost = '192.168.0.106'
+        self.serverHost = '127.0.0.1'
         self.serverPort = 7777
         self.socket = None
     
@@ -60,6 +60,7 @@ class Client:
         return
 
     def send_to_server(self):
+        print("ENTER 'help' TO SEE AVAILABLE COMMANDS!")
         while True:
             command_str = input("COMM>")
             if len(command_str)==0:
@@ -75,6 +76,7 @@ class Client:
                 except Exception as e:
                     logger.error(f"Unable to send message to server: {e} ")
                     break
+            time.sleep(0.5)
         return 
         
     def recv_from_server(self):
