@@ -3,7 +3,7 @@ import socket
 HOSTNAME = input("ENTER HOSTNAME OR IP_ADDR> ")   
 PORT = int(input("ENTER PORT NUMBER> "))     
 
-addr_info = socket.getaddrinfo(HOSTNAME, PORT)
+addr_info = socket.getaddrinfo(HOSTNAME, PORT, family= socket.AF_UNSPEC)
 family = addr_info[0][0]
 type = addr_info[0][1]
 HOST = addr_info[0][4][0]

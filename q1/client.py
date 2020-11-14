@@ -51,19 +51,40 @@ class Client(object):
         return
 
     def send_file(self, data_str):
-        filepath = data_str.split()[1]
+        # filepath = data_str.split()[1]
+        filepath = data_str[data_str.find('getfile')+len('getfile')+1:]
         output_str = ""
-        with open(filepath, 'rb') as f:
-            data = f.read()
+
         try:
+            with open(filepath, 'rb') as f:
+                data = f.read()
             self.socket.send(data)
             time.sleep(0.5)
             self.socket.send(str.encode("DONE UPLOADING", 'utf-8'))
-            
-        except  socket.error as ex:
+        except  Exception as ex:
             output_str = f"Unable to upload the file: {ex}\n"
         return output_str
     
+    def recv_file(self, data_str):
+        output_str = ""
+        filepath = data_str[data_str.find('sendfile')+len('sendfile')+1:]
+        local_file_name = filepath.split(os.path.sep)[-1]
+        try:
+            with open(local_file_name, 'wb') as f: 
+                while True:
+                    data = self.socket.recv(20480)
+                    try:
+                        decoded_data = data.decode('UTF-8')
+                    except Exception as ex:
+                        decoded_data = "didnot decode"
+                    if decoded_data == "DONE UPLOADING": break
+                    f.write(data)
+                    print("DOWNLOADING...............\n")                    
+            print(f"File downloaded sucessful with name:{local_file_name}\n")
+        except Exception as ex:
+            output_str = f"Unable to download the file: {ex}\n"
+        return output_str    
+        
     def changedir(self, data_str):
         output_str = ""
         dir = data_str.split()[1].strip()
@@ -96,13 +117,15 @@ class Client(object):
             data = self.socket.recv(20480)
             data_str = data.decode('utf-8')
             split_data = data_str.split()
-            print(data_str)
+            print("command= ", data_str)
             if data == b'' or data_str == 'quit': break 
             # recv will return "" when server closes connection.
             elif len(split_data)>0 and data_str.split()[0] == 'cd':
                 output_str = self.changedir(data_str)
             elif len(split_data)>0 and data_str.split()[0] == "getfile":
                 output_str = self.send_file(data_str)
+            elif len(split_data)>0 and data_str.split()[0] == "sendfile":
+                output_str = self.recv_file(data_str)
             elif len(data_str) > 0:
                 output_str = self.execute_command(data)
             try:

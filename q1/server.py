@@ -75,7 +75,8 @@ class Server:
         for i, conn in enumerate(self.connections):
             try:
                 conn.send(str.encode(" "))
-                conn.recv(20480)
+                data = conn.recv(20480)
+                if data == b'': raise "connection closed!"
             except Exception as e:
                 if i<len(self.connections):
                     del self.connections[i]
@@ -105,18 +106,34 @@ class Server:
             try:
                 conn.send(cmd)
                 if 'getfile' in cmd_str:
-                    data = conn.recv(20480) 
                     file_path = cmd_str[cmd_str.find('getfile')+len('getfile')+1:]
                     local_file_name = file_path.split(os.path.sep)[-1]
                     with open(local_file_name, 'wb') as f: 
-                        while data.decode('UTF-8')!="DONE UPLOADING":
-                            f.write(data)
+                        while True:
                             data = conn.recv(20480)
+                            try:
+                                decoded_data = data.decode('UTF-8')
+                            except Exception as ex:
+                                decoded_data = "didnot decode"
+                            if decoded_data == "DONE UPLOADING": break
+                            f.write(data)
+                            print("DOWNLOADING..........")
                     print(f"File downloaded sucessful with name:{local_file_name}\n")
                     time.sleep(0.5)
                     output = conn.recv(20480)
                     output_str = output.decode('utf-8')
-                    print(output_str, end="")          
+                    print(output_str, end="")
+                elif 'sendfile' in cmd_str:
+                    time.sleep(0.1)
+                    file_path = cmd_str[cmd_str.find('sendfile')+len('sendfile')+1:]
+                    with open(file_path, "rb") as f:
+                        file_data = f.read()
+                    conn.send(file_data)
+                    time.sleep(0.5)
+                    conn.send(str.encode("DONE UPLOADING"))
+                    output = conn.recv(20480)
+                    output_str = output.decode('utf-8')
+                    print(output_str, end="")
                 else:   
                     output = conn.recv(20480)
                     output_str = output.decode('utf-8')
@@ -124,7 +141,7 @@ class Server:
                 if cmd_str.strip() == 'quit':
                     break
             except Exception as e:
-                print("Unable to revcieve or send meesages: %s" %str(e))
+                print("Unable to recieve or send meesages: %s" %str(e))
                 del self.connections[client_id]
                 del self.addresses[client_id]
                 break
