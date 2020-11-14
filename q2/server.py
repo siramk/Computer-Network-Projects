@@ -116,7 +116,7 @@ class Server:
             try:
                 conn.send(str.encode(" "))
                 data = conn.recv(20480)
-                if data == b'': raise "connection broken"                
+                if data == b'': raise Exception("connection broken")                
             except Exception as e:
                 if i<len(self.connections):
                     del self.connections[i]

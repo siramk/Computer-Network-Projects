@@ -78,7 +78,7 @@ class Server:
             try:
                 conn.send(str.encode(" "))
                 data = conn.recv(20480)
-                if data == b'': raise "connection closed!"
+                if data == b'': raise Exception("connection closed!")
             except Exception as e:
                 if i<len(self.connections):
                     del self.connections[i]
@@ -87,6 +87,7 @@ class Server:
                 continue
             print(f"{i}: {self.addresses[i]}\n")
         return 
+    
     def shutdown(self):
         threads_queue.task_done()
         threads_queue.task_done()
@@ -110,17 +111,20 @@ class Server:
                 if 'getfile' in cmd_str:
                     file_path = cmd_str[cmd_str.find('getfile')+len('getfile')+1:]
                     local_file_name = file_path.split(os.path.sep)[-1]
-                    with open(local_file_name, 'wb') as f: 
-                        while True:
-                            data = conn.recv(20480)
-                            try:
-                                decoded_data = data.decode('UTF-8')
-                            except Exception as ex:
-                                decoded_data = "didnot decode"
-                            if decoded_data == "DONE UPLOADING": break
-                            f.write(data)
-                            print("DOWNLOADING..........")
-                    print(f"File downloaded sucessful with name:{local_file_name}\n")
+                    try:
+                        with open(local_file_name, 'wb') as f: 
+                            while True:
+                                data = conn.recv(20480)
+                                try:
+                                    decoded_data = data.decode('UTF-8')
+                                except Exception as ex:
+                                    decoded_data = "didnot decode"
+                                if decoded_data == "DONE UPLOADING": break
+                                f.write(data)
+                                print("DOWNLOADING...............\n")                    
+                        print(f"File downloaded sucessful with name:{local_file_name}\n")
+                    except Exception as ex:
+                        print(f"Unable to download the file: {ex}\n")
                     time.sleep(0.5)
                     output = conn.recv(20480)
                     output_str = output.decode('utf-8')

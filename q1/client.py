@@ -51,19 +51,19 @@ class Client(object):
         return
 
     def send_file(self, data_str):
-        # filepath = data_str.split()[1]
-        filepath = data_str[data_str.find('getfile')+len('getfile')+1:]
         output_str = ""
-
         try:
-            with open(filepath, 'rb') as f:
-                data = f.read()
-            self.socket.send(data)
+            time.sleep(0.1)
+            file_path = data_str[data_str.find('getfile')+len('getfile')+1:]
+            with open(file_path, "rb") as f:
+                file_data = f.read()
+            self.socket.sendall(file_data)
             time.sleep(0.5)
-            self.socket.send(str.encode("DONE UPLOADING", 'utf-8'))
-        except  Exception as ex:
+            self.socket.send(str.encode("DONE UPLOADING"))
+        except Exception as ex:
             output_str = f"Unable to upload the file: {ex}\n"
         return output_str
+
     
     def recv_file(self, data_str):
         output_str = ""
