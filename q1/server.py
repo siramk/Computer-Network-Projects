@@ -11,7 +11,9 @@ JOBS = ['accept_connections', 'talk_to_connections']
 NOF_THREADS = 2
 AVAILABLE_COMMANDS = [
     "list: prints all online connections",
-    "select client_id: selects a client with client_id and allows to send commands",
+    "select <client_id>: selects a client with client_id and allows to send commands",
+    "getfile <filename>: downloads the file from client system to server(works only in 'select' mode)",
+    "sendfile <filename>: uploads the file from server system to client(works only in 'select' mode)"
     "quit: quits current connection with the client you are talking to(to be used when in select mode)",
     "shutdown: shutsdown the server"
 ]
